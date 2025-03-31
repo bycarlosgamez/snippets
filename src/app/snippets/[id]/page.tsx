@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { db } from '@/db';
+import * as actions from '@/actions';
 
 type SnippetPageProps = {
   params: Promise<{
@@ -16,6 +17,8 @@ export default async function SnippetPage(props: SnippetPageProps) {
   });
 
   if (!snippet) return notFound();
+
+  const deleteSnippetAction = actions.deleteSnippet.bind(null, snippet.id);
 
   return (
     <div>
@@ -33,9 +36,11 @@ export default async function SnippetPage(props: SnippetPageProps) {
               Edit
             </Link>
 
-            <button className='rounded-md bg-red-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-red-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600'>
-              Delete
-            </button>
+            <form action={deleteSnippetAction}>
+              <button className='rounded-md bg-red-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-red-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600'>
+                Delete
+              </button>
+            </form>
           </div>
         </div>
       </div>
