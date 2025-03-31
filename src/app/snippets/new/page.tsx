@@ -1,25 +1,20 @@
-import { redirect } from 'next/navigation';
-import { db } from '@/db';
+'use client';
+
+import { useActionState, startTransition } from 'react';
+
+import * as actions from '@/actions';
 
 export default function SnippetCreatePage() {
-  async function createSnippet(formData: FormData) {
-    // Sever action
-    'use server';
+  const [formState, action] = useActionState(actions.createSnippet, {
+    message: '',
+  });
 
-    // Check user inputs are valid
-    const title = formData.get('title') as string;
-    const code = formData.get('code') as string;
-
-    // Create new record in the database
-    const snippet = await db.snippet.create({
-      data: {
-        title,
-        code,
-      },
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    startTransition(() => {
+      action(formData);
     });
-
-    // Redirect to homepage
-    redirect('/');
   }
 
   return (
@@ -33,7 +28,8 @@ export default function SnippetCreatePage() {
         </p>
       </div>
       <form
-        action={createSnippet}
+        action={action}
+        onSubmit={handleSubmit}
         method='POST'
         className='mx-auto mt-16 max-w-xl sm:mt-20'
       >
@@ -75,9 +71,14 @@ export default function SnippetCreatePage() {
           </div>
         </div>
         <div className='mt-10'>
+          {formState.message ? (
+            <div className='my-2 p-2 bg-red-200 border rounded border-red-400'>
+              {formState.message}
+            </div>
+          ) : null}
           <button
             type='submit'
-            className='block w-full rounded-md bg-indigo-600 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
+            className='block w-full rounded-md bg-indigo-600 px-3.5 py-2.5 my-2 text-center text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
           >
             Save
           </button>
